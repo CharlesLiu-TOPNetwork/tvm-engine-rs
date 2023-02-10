@@ -1,0 +1,11 @@
+[workspace]
+members = ["tvm-engine"]
+
+[workspace.package]
+version = "0.1.0-alpha"
+edition = "2021"
+authors = ["Charles.liu"]
+description = "Virtual Machine Engine for TOP-Chain"
+rust-version = "1.66"
+
+[workspace.dependencies]
