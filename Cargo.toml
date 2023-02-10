@@ -1,5 +1,5 @@
 [workspace]
-members = ["tvm-engine"]
+members = ["tvm-engine", "tvm-engine-types", "tvm-engine-precompiles"]
 
 [workspace.package]
 version = "0.1.0-alpha"
