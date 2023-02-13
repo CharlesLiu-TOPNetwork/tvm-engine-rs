@@ -9,3 +9,7 @@ rust-version.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+tvm-engine-types = { workspace = true }
+evm = { workspace = true }
+sha3 = { workspace = true }
+libsecp256k1 = { workspace = true }
