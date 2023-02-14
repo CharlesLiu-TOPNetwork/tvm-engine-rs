@@ -11,3 +11,8 @@ rust-version.workspace = true
 [dependencies]
 primitive-types = { workspace = true }
 hex = { workspace = true }
+protobuf = { workspace = true }
+xxhash-rust = { workspace = true, features = ["xxh64", "const_xxh64"] }
+
+
+[dev-dependencies]

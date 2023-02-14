@@ -50,7 +50,7 @@ impl Precompile for ECRecover {
         let v_bit = match v[31] {
             27 | 28 if v[..31] == [0; 31] => v[31] - 27,
             _ => {
-                return Ok(TvmPrecompileOutput::without_logs(cost, vec![255u8; 32]).into());
+                return Ok(TvmPrecompileOutput::without_logs(cost, vec![255u8; 32]));
             }
         };
         signature[64] = v_bit; // v
@@ -92,4 +92,33 @@ pub fn ecrevocer(hash: H256, signature: &[u8]) -> Result<Address, ExitError> {
     }
 
     Err(ExitError::Other(Borrowed("ERR_ECRECOVER")))
+}
+
+mod tests {
+    #[allow(unused_imports)]
+    use super::*;
+
+    #[test]
+    fn test_ecrecover() {
+        let hash = hex::decode("456e9aea5e197a1f1af7a3e85a3212fa4049a3ba34c2289b4c860fc0b0c64ef3").unwrap();
+        let mut signature = [0; 65];
+        signature[0..32].copy_from_slice(
+            hex::decode("9242685bf161793cc25603c231bc2f568eb630ea16aa137d2664ac8038825608")
+                .unwrap()
+                .as_slice(),
+        );
+        signature[32..64].copy_from_slice(
+            hex::decode("4f8ae3bd7535248d0bd448298cc2e2071e56992d0774dc340c368ae950852ada")
+                .unwrap()
+                .as_slice(),
+        );
+        let v_bit = 28 - 27;
+        signature[64] = v_bit; // v
+
+        let address = ecrevocer(H256::from_slice(&hash), &signature).unwrap();
+        assert_eq!(
+            address,
+            Address::build_from_str("7156526fbd7a3c72969b54f64e42c10fbb768c8a").unwrap()
+        );
+    }
 }

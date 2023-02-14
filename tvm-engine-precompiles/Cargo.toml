@@ -13,3 +13,7 @@ tvm-engine-types = { workspace = true }
 evm = { workspace = true }
 sha3 = { workspace = true }
 libsecp256k1 = { workspace = true }
+
+
+[dev-dependencies]
+hex = { workspace = true }

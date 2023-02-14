@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "protobuf_types/pbasic.proto";
+
+package top.tvm_engine.parameters;
+
+message PReturnResult {
+    message PU256 {
+        bytes data = 1; // use bytes = U256 = [u8;32]
+    }
+    
+    message PLog {
+        basic.PAddress address = 1;
+        repeated PU256 topics = 2;
+        bytes data = 3;
+    }
+
+    uint32 status = 1;
+    bytes status_data = 2;
+    uint64 gas_used = 3;
+    repeated PLog logs = 4;
+}
+
+message PCallArgs {
+    basic.PAddress address = 1;
+    uint64 value = 2;
+    bytes input = 3;
+    uint64 gas_limit = 4;
+}

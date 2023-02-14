@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package top.tvm_engine.basic;
+
+message PAddress {
+    bytes value = 1; // use bytes = H160 = [u8;20]
+}

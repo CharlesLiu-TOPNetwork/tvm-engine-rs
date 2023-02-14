@@ -1,3 +1,5 @@
+use crate::PAddress;
+
 use primitive_types::H160;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -43,9 +45,11 @@ impl Address {
         hex::encode(self.as_slice())
     }
 
-    pub fn to_top_address(&self) -> String {
-        // might be T8Address struct
-        todo!()
+    /// Top T8 address, use T80000 prefix than do xxhash64 (NOT xxh3) on hex-string address.
+    /// Get a u64 value x, tableid = x & 63
+    pub fn get_top_address_tableid(&self) -> u8 {
+        // let top_address = format!("T80000{}", self.encode());
+        (xxhash_rust::const_xxh64::xxh64([b"T80000", self.encode().as_bytes()].concat().as_slice(), 0) & 63) as u8
     }
 }
 
@@ -55,6 +59,21 @@ pub mod error {
     pub enum AddressError {
         IncorrectLength,
         DecodeFailure,
+    }
+}
+
+impl From<PAddress> for Address {
+    fn from(value: PAddress) -> Self {
+        Address::build_from_slice(&value.value).expect("Incorrect Address Length from ProtoAddress")
+    }
+}
+
+impl From<Address> for PAddress {
+    fn from(value: Address) -> Self {
+        PAddress {
+            value: value.as_slice().to_vec(),
+            ..Default::default()
+        }
     }
 }
 
@@ -68,7 +87,28 @@ mod tests {
     }
 
     #[test]
-    fn test_from_top_address() {
-        todo!()
+    fn test_proto_address() {
+        let addr = Address::build_from_str("7156526fbd7a3c72969b54f64e42c10fbb768c8a").unwrap();
+        let paddr: PAddress = addr.into();
+        let apaddr: Address = paddr.into();
+        assert_eq!(apaddr, addr);
+    }
+
+    #[test]
+    fn test_top_address_tableid() {
+        // let r = xxhash_rust::const_xxh3::xxh3_64(b"T8000056d9407e0ae1246a2aafcfa57f3fc1bd7023df81");
+        // let l = xxhash_rust::const_xxh64::xxh64(b"T8000056d9407e0ae1246a2aafcfa57f3fc1bd7023df81", 0);
+        // println!("{}\n{}", r, l);
+        assert_eq!(
+            xxhash_rust::const_xxh64::xxh64(b"T8000056d9407e0ae1246a2aafcfa57f3fc1bd7023df81", 0),
+            13715836294981773700
+        );
+        // tableid 4
+        assert_eq!(
+            Address::build_from_str("56d9407e0ae1246a2aafcfa57f3fc1bd7023df81")
+                .unwrap()
+                .get_top_address_tableid(),
+            4
+        );
     }
 }
