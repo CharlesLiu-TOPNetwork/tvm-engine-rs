@@ -1,5 +1,10 @@
 [workspace]
-members = ["tvm-engine", "tvm-engine-types", "tvm-engine-precompiles"]
+members = [
+    "tvm-engine",
+    "tvm-engine-types",
+    "tvm-engine-precompiles",
+    "tvm-engine-runtime",
+]
 
 [workspace.package]
 version = "0.1.0-alpha"
@@ -13,8 +18,10 @@ primitive-types = { version = "0.12.1" }
 hex = { version = "0.4.3" }
 tvm-engine-precompiles = { version = "0.1.0-alpha", path = "./tvm-engine-precompiles" }
 tvm-engine-types = { version = "0.1.0-alpha", path = "./tvm-engine-types" }
+tvm-engine-runtime = { version = "0.1.0-alpha", path = "./tvm-engine-runtime" }
 evm = { version = "0.37.0" }
-sha3 = { version = "0.10.6" }
+sha2 = { version = "0.10.6", default-features = false }
+sha3 = { version = "0.10.6", default-features = false }
 libsecp256k1 = { version = "0.7.1" }
 protobuf = { version = "3.2.0" }
 xxhash-rust = { version = "0.8.6" }

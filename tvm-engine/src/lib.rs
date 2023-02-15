@@ -1,14 +1,6 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
+mod engine;
+mod error;
+mod types;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub(crate) use error::{EngineError, EngineErrorEnum};
+pub(crate) use types::{CallArgs, ReturnResult, TransactionStatus};

@@ -32,9 +32,17 @@ impl Address {
         Ok(Self::build_from_hash160(H160::from_slice(val)))
     }
 
+    pub fn raw(&self) -> H160 {
+        self.0
+    }
+
     /// Zero Address
     pub const fn zero() -> Self {
         Self::build_from_hash160(H160([0u8; 20]))
+    }
+
+    pub fn is_zero(&self) -> bool {
+        self.0.is_zero()
     }
 
     pub fn as_slice(&self) -> &[u8] {

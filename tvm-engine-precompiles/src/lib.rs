@@ -81,8 +81,7 @@ impl evm::executor::stack::PrecompileSet for Precompiles {
 
 impl Precompiles {
     // could add some arguments.
-    #[allow(dead_code)]
-    fn new() -> Self {
+    pub fn new() -> Self {
         let addresses = vec![ECRecover::ADDRESS];
         let f: Vec<Box<dyn Precompile>> = vec![Box::new(ECRecover)];
         let map = addresses.into_iter().zip(f).collect();

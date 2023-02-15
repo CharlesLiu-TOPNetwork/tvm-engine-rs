@@ -1,5 +1,5 @@
 [package]
-name = "tvm-engine"
+name = "tvm-engine-runtime"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -9,7 +9,5 @@ rust-version.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tvm-engine-precompiles = { workspace = true }
+sha2 = { workspace = true, default-features = false }
 tvm-engine-types = { workspace = true }
-tvm-engine-runtime = { workspace = true }
-evm = { workspace = true }
