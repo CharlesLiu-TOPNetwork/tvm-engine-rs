@@ -6,5 +6,4 @@
 # cargo uninstall protobuf-codegen
 # cargo install protobuf-codegen
 
-protoc --rust_out ./tvm-engine-types/src/proto/ ./protobuf_types/pbasic.proto
-protoc --rust_out ./tvm-engine-types/src/proto/ ./protobuf_types/pparameters.proto
+protoc --rust_out ./tvm-engine-types/src/proto/ ./protobuf_types/pbasic.proto ./protobuf_types/pparameters.proto

@@ -22,8 +22,9 @@ message PReturnResult {
 }
 
 message PCallArgs {
-    basic.PAddress address = 1;
-    uint64 value = 2;
-    bytes input = 3;
-    uint64 gas_limit = 4;
+    basic.PAddress sender_address = 1;
+    basic.PAddress recver_address = 2;
+    uint64 value = 3;
+    bytes input = 4;
+    uint64 gas_limit = 5;
 }

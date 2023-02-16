@@ -1,6 +1,8 @@
+use std::cell::RefCell;
+
 use evm::backend::{Apply, ApplyBackend, Backend};
 use tvm_engine_precompiles::Precompiles;
-use tvm_engine_runtime::{env::Env, io::IO, methods::*, utils};
+use tvm_engine_runtime::{env::Env, io::IO, methods::*, utils, DupCache, PairDupCache};
 use tvm_engine_types::{uTop, Address, H256, U256};
 
 use crate::{CallArgs, EngineError, EngineErrorEnum, ReturnResult, TransactionStatus};
@@ -42,6 +44,8 @@ impl StackExecutorParams {
 pub struct Engine<'env, I, E> {
     io: I,
     env: &'env E,
+    account_info_cache: RefCell<DupCache<Address, evm::backend::Basic>>,
+    storage_cache: RefCell<PairDupCache<Address, H256, H256>>,
 }
 
 /// convert `evm::ExitReason` into `Result<TransactionStatus, EngineErrorEnum>`
@@ -55,12 +59,16 @@ trait EvmExitIntoResult {
 
 impl EvmExitIntoResult for evm::ExitReason {
     fn into_result(self, data: Vec<u8>) -> Result<TransactionStatus, EngineErrorEnum> {
+        use evm::ExitError;
         use evm::ExitReason::*;
         match self {
-            Succeed(_) => todo!(),
-            Error(_) => todo!(),
-            Revert(_) => todo!(),
-            Fatal(_) => todo!(),
+            Succeed(_) => Ok(TransactionStatus::Succeed(data)),
+            Revert(_) => Ok(TransactionStatus::Revert(data)),
+            Error(ExitError::OutOfFund) => Ok(TransactionStatus::OutOfFund),
+            Error(ExitError::OutOfGas) => Ok(TransactionStatus::OutOfGas),
+            Error(ExitError::OutOfOffset) => Ok(TransactionStatus::OutOfOffset),
+            Error(e) => Err(e.into()),
+            Fatal(e) => Err(e.into()),
         }
     }
 }
@@ -72,8 +80,13 @@ where
     I: IO,
     E: Env,
 {
-    pub(crate) fn new(origin: Address, io: I, env: &'env E) -> Self {
-        Self { io, env }
+    pub(crate) fn new(io: I, env: &'env E) -> Self {
+        Self {
+            io,
+            env,
+            account_info_cache: RefCell::new(DupCache::default()),
+            storage_cache: RefCell::new(PairDupCache::default()),
+        }
     }
 
     pub(crate) fn call(&mut self, args: CallArgs) -> EngineResult {
@@ -208,28 +221,35 @@ where
     I: IO,
     E: Env,
 {
+    /// current gas_price
     fn gas_price(&self) -> tvm_engine_types::U256 {
-        todo!()
+        self.env.gas_price()
     }
 
+    /// origin address that create this call
     fn origin(&self) -> tvm_engine_types::H160 {
+        self.env.origin().raw()
+    }
+
+    /// hash value of some block height
+    fn block_hash(&self, _number: tvm_engine_types::U256) -> tvm_engine_types::H256 {
+        // query real block hash is expensive, figure out some method to calc a fake but certain hash
         todo!()
     }
 
-    fn block_hash(&self, number: tvm_engine_types::U256) -> tvm_engine_types::H256 {
-        todo!()
-    }
-
+    /// current block height
     fn block_number(&self) -> tvm_engine_types::U256 {
-        todo!()
+        U256::from(self.env.block_height())
     }
 
+    /// current consensus leader
     fn block_coinbase(&self) -> tvm_engine_types::H160 {
-        todo!()
+        self.env.block_coinbase().raw()
     }
 
+    /// current block timestamp (Unix Timestamp)
     fn block_timestamp(&self) -> tvm_engine_types::U256 {
-        todo!()
+        U256::from(self.env.block_timestamp().secs())
     }
 
     fn block_difficulty(&self) -> tvm_engine_types::U256 {
@@ -244,32 +264,53 @@ where
         todo!()
     }
 
+    /// current chain id
     fn chain_id(&self) -> tvm_engine_types::U256 {
-        todo!()
+        U256::from(self.env.chain_id())
     }
 
+    /// check if a address exist
     fn exists(&self, address: tvm_engine_types::H160) -> bool {
-        todo!()
+        !is_account_empty(&self.io, &Address::build_from_hash160(address))
     }
 
+    /// return one address' basic infomation (balance && nonce)
     fn basic(&self, address: tvm_engine_types::H160) -> evm::backend::Basic {
-        todo!()
+        let address = Address::build_from_hash160(address);
+        self.account_info_cache
+            .borrow_mut()
+            .get_or_insert_with(&address, || evm::backend::Basic {
+                nonce: get_nonce(&self.io, &address),
+                balance: get_balance(&self.io, &address).into_wei_raw(),
+            })
+            .clone()
     }
 
+    /// return the code of some address
     fn code(&self, address: tvm_engine_types::H160) -> Vec<u8> {
-        todo!()
+        get_code(&self.io, &Address::build_from_hash160(address))
     }
 
+    /// get storage of some address at some index
     fn storage(&self, address: tvm_engine_types::H160, index: tvm_engine_types::H256) -> tvm_engine_types::H256 {
-        todo!()
+        let address = Address::build_from_hash160(address);
+        self.storage_cache
+            .borrow_mut()
+            .get_or_insert_with((&address, &index), || get_storage(&self.io, &address, &index))
+            .clone()
     }
 
+    /// Get original storage value of address at index, if available.
+    ///
+    /// Since SputnikVM collects storage changes in memory until the transaction is over,
+    /// the "original storage" will always be the same as the storage because no values
+    /// are written to storage until after the transaction is complete.
     fn original_storage(
         &self,
         address: tvm_engine_types::H160,
         index: tvm_engine_types::H256,
     ) -> Option<tvm_engine_types::H256> {
-        todo!()
+        Some(self.storage(address, index))
     }
 }
 

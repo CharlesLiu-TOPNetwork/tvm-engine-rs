@@ -61,6 +61,12 @@ impl Address {
     }
 }
 
+impl Default for Address {
+    fn default() -> Self {
+        Self::zero()
+    }
+}
+
 pub mod error {
 
     #[derive(Debug, Clone, PartialEq, Eq)]
@@ -70,16 +76,35 @@ pub mod error {
     }
 }
 
-impl From<PAddress> for Address {
-    fn from(value: PAddress) -> Self {
+impl From<&PAddress> for Address {
+    fn from(value: &PAddress) -> Self {
         Address::build_from_slice(&value.value).expect("Incorrect Address Length from ProtoAddress")
     }
 }
+impl From<PAddress> for Address {
+    fn from(value: PAddress) -> Self {
+        (&value).into()
+    }
+}
 
-impl From<Address> for PAddress {
-    fn from(value: Address) -> Self {
+impl From<&Address> for PAddress {
+    fn from(value: &Address) -> Self {
         PAddress {
             value: value.as_slice().to_vec(),
+            ..Default::default()
+        }
+    }
+}
+impl From<Address> for PAddress {
+    fn from(value: Address) -> Self {
+        (&value).into()
+    }
+}
+
+impl From<H160> for PAddress {
+    fn from(value: H160) -> Self {
+        PAddress {
+            value: value.as_bytes().to_vec(),
             ..Default::default()
         }
     }

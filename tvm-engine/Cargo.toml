@@ -13,3 +13,4 @@ tvm-engine-precompiles = { workspace = true }
 tvm-engine-types = { workspace = true }
 tvm-engine-runtime = { workspace = true }
 evm = { workspace = true }
+protobuf = { workspace = true }
