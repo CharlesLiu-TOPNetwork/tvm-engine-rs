@@ -8,6 +8,34 @@ use evm::{backend::Log, Context, ExitError};
 mod ecrecover;
 use ecrecover::ECRecover;
 
+/// [0x02. SHA2](../README.md#0x02-sha2)
+mod sha256;
+use sha256::SHA256;
+
+/// [0x03. RIPEMD](../README.md#0x03-ripemd)
+mod ripemd160;
+use ripemd160::Ripemd;
+
+/// [0x04. IDENTITY](../README.md#0x04-identity)
+mod identity;
+use identity::Identity;
+
+/// [0x05. MODEXP](../README.md#0x05-modexp)
+mod modexp;
+use modexp::ModExp;
+
+mod bn256;
+/// [0x06. ecAdd](../README.md#0x06-ecadd)
+use bn256::bn_add::Bn256Add;
+/// [0x07. ecMul](../README.md#0x07-ecmul)
+use bn256::bn_mul::Bn256Mul;
+/// [0x08. ecPair](../README.md#0x08-ecpairing)
+use bn256::bn_pair::Bn256Pair;
+
+/// [0x09. blake2f](../README.md#0x09-blake2f)
+mod blake2f;
+use blake2f::Blake2F;
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct TvmPrecompileOutput {
     pub cost: Gas,
@@ -82,10 +110,36 @@ impl evm::executor::stack::PrecompileSet for Precompiles {
 impl Precompiles {
     // could add some arguments.
     pub fn new() -> Self {
-        let addresses = vec![ECRecover::ADDRESS];
-        let f: Vec<Box<dyn Precompile>> = vec![Box::new(ECRecover)];
+        let addresses = vec![
+            ECRecover::ADDRESS,
+            SHA256::ADDRESS,
+            Ripemd::ADDRESS,
+            Identity::ADDRESS,
+            ModExp::ADDRESS,
+            Bn256Add::ADDRESS,
+            Bn256Mul::ADDRESS,
+            Bn256Pair::ADDRESS,
+            Blake2F::ADDRESS,
+        ];
+        let f: Vec<Box<dyn Precompile>> = vec![
+            Box::new(ECRecover),
+            Box::new(SHA256),
+            Box::new(Ripemd),
+            Box::new(Identity),
+            Box::new(ModExp),
+            Box::new(Bn256Add),
+            Box::new(Bn256Mul),
+            Box::new(Bn256Pair),
+            Box::new(Blake2F),
+        ];
         let map = addresses.into_iter().zip(f).collect();
         Precompiles(map)
+    }
+}
+
+impl Default for Precompiles {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

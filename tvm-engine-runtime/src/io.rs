@@ -59,9 +59,7 @@ pub mod methods {
 
     // balance
     pub fn get_balance<I: IO>(io: &I, address: &Address) -> uTop {
-        let raw = io
-            .read_u64(&address_to_key(KeyPrefix::Balance, address))
-            .unwrap_or_else(|_| 0);
+        let raw = io.read_u64(&address_to_key(KeyPrefix::Balance, address)).unwrap_or(0);
         uTop::new(raw)
     }
     pub fn set_balance<I: IO>(io: &mut I, address: &Address, amount: &uTop) {
@@ -95,9 +93,7 @@ pub mod methods {
 
     // nonce
     pub fn get_nonce<I: IO>(io: &I, address: &Address) -> U256 {
-        let raw = io
-            .read_u64(&address_to_key(KeyPrefix::Balance, address))
-            .unwrap_or_else(|_| 0);
+        let raw = io.read_u64(&address_to_key(KeyPrefix::Balance, address)).unwrap_or(0);
         U256::from(raw)
     }
     pub fn set_nonce<I: IO>(io: &mut I, address: &Address, nonce: &U256) {

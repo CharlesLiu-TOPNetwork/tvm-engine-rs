@@ -11,9 +11,12 @@ rust-version.workspace = true
 [dependencies]
 tvm-engine-types = { workspace = true }
 evm = { workspace = true }
+sha2 = { workspace = true, default-features = false }
 sha3 = { workspace = true, default-features = false }
+ripemd = { workspace = true, default-features = false }
 libsecp256k1 = { workspace = true }
-
+num = { workspace = true, default-features = false, features = ["alloc"] }
+zeropool-bn = { workspace = true, default-features = false }
 
 [dev-dependencies]
 hex = { workspace = true }

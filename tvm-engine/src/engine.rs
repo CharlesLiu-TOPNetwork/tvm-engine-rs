@@ -294,10 +294,10 @@ where
     /// get storage of some address at some index
     fn storage(&self, address: tvm_engine_types::H160, index: tvm_engine_types::H256) -> tvm_engine_types::H256 {
         let address = Address::build_from_hash160(address);
-        self.storage_cache
+        *self
+            .storage_cache
             .borrow_mut()
             .get_or_insert_with((&address, &index), || get_storage(&self.io, &address, &index))
-            .clone()
     }
 
     /// Get original storage value of address at index, if available.

@@ -1,8 +1,6 @@
-use evm::ExitError;
-
-use tvm_engine_types::{Address, Gas, H256};
-
 use crate::{Precompile, TvmPrecompileOutput};
+use evm::ExitError;
+use tvm_engine_types::{Address, Gas, H256};
 
 pub(super) const ECRECOVER_BASE: Gas = Gas::new(3000);
 pub(super) const INPUT_LEN: usize = 128;
@@ -94,6 +92,7 @@ pub fn ecrevocer(hash: H256, signature: &[u8]) -> Result<Address, ExitError> {
     Err(ExitError::Other(Borrowed("ERR_ECRECOVER")))
 }
 
+#[cfg(test)]
 mod tests {
     #[allow(unused_imports)]
     use super::*;
