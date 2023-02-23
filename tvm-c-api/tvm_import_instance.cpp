@@ -5,6 +5,11 @@
 namespace top {
 namespace tvm {
 
+tvm_import_instance * tvm_import_instance::instance() {
+    static tvm_import_instance ins;
+    return &ins;
+}
+
 void tvm_import_instance::add_logic(std::shared_ptr<tvm_logic_face> logic) {
     auto current_thread_id_hash = std::to_string(std::hash<std::thread::id>{}(std::this_thread::get_id()));
     std::unique_lock<std::mutex> lock(m_rw_mutex);
