@@ -13,4 +13,8 @@ cc = "1.0.79"
 
 [dependencies]
 sha2 = { workspace = true, default-features = false }
+sha3 = { workspace = true, default-features = false }
 tvm-engine-types = { workspace = true }
+
+[features]
+build_as_xtop_lib = []

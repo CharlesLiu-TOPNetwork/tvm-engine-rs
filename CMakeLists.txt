@@ -10,10 +10,10 @@ execute_process(
 message(STATUS "Cargo dir: " ${CARGO_DIR})
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CARGO_CMD ${CARGO_DIR} build)
+    set(CARGO_CMD ${CARGO_DIR} build --features=build_as_xtop_lib)
     set(TARGET_DIR "debug")
 else()
-    set(CARGO_CMD ${CARGO_DIR} build --release)
+    set(CARGO_CMD ${CARGO_DIR} build --features=build_as_xtop_lib --release)
     set(TARGET_DIR "release")
 endif()
 

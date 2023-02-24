@@ -1,6 +1,13 @@
-pub fn sha256(input: &Vec<u8>) -> Vec<u8> {
+use tvm_engine_types::H256;
+
+pub fn sha256(input: &[u8]) -> H256 {
     use sha2::Digest;
-    sha2::Sha256::digest(input).to_vec()
+    H256::from_slice(sha2::Sha256::digest(input).as_slice())
+}
+
+pub fn keccak(input: &[u8]) -> H256 {
+    use sha3::Digest;
+    H256::from_slice(sha3::Keccak256::digest(input).as_slice())
 }
 
 pub fn panic_utf8(bytes: &[u8]) -> ! {

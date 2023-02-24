@@ -1,5 +1,10 @@
 fn main() {
+    #[cfg(feature = "build_as_xtop_lib")]
     let out_dir = std::env::var("RUST_COMPILE_C_OUTPUT_DIR").unwrap();
+
+    #[cfg(not(feature = "build_as_xtop_lib"))]
+    let out_dir = std::env::var("OUT_DIR").unwrap();
+
     println!("cargo:rerun-if-changed=../tvm-c-api/");
     cc::Build::new()
         .cpp(true)

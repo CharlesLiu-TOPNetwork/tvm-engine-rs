@@ -93,7 +93,7 @@ pub mod methods {
 
     // nonce
     pub fn get_nonce<I: IO>(io: &I, address: &Address) -> U256 {
-        let raw = io.read_u64(&address_to_key(KeyPrefix::Balance, address)).unwrap_or(0);
+        let raw = io.read_u64(&address_to_key(KeyPrefix::Nonce, address)).unwrap_or(0);
         U256::from(raw)
     }
     pub fn set_nonce<I: IO>(io: &mut I, address: &Address, nonce: &U256) {

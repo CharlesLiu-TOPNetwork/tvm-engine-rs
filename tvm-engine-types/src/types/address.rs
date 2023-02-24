@@ -78,7 +78,8 @@ pub mod error {
 
 impl From<&PAddress> for Address {
     fn from(value: &PAddress) -> Self {
-        Address::build_from_slice(&value.value).expect("Incorrect Address Length from ProtoAddress")
+        Address::build_from_slice(&value.value)
+            .unwrap_or_else(|_| panic!("Incorrect Address Length from ProtoAddress {:?}", value))
     }
 }
 impl From<PAddress> for Address {

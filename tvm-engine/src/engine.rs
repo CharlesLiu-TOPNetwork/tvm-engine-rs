@@ -108,19 +108,21 @@ where
 
         // 2. calc contract address
         // 2.1 code hash
-        let code_hash: H256 = H256::from_slice(utils::sha256(&input).as_slice());
+        let code_hash = utils::keccak(&input);
 
         // 2.2 nonce hash as salt begin value
         let nonce = self.basic(caller.raw()).nonce;
+        utils::log(format!("get address {:?} 's nonce: {:?}", caller, nonce).as_str());
         let mut temp_bytes = Vec::new();
+        temp_bytes.resize(32, 0u8);
         nonce.to_big_endian(&mut temp_bytes);
-        let mut salt_value = H256::from_slice(utils::sha256(&temp_bytes).as_slice());
+        let mut salt_value = utils::sha256(&temp_bytes);
 
         // 2.3 target table id
         let caller_table_id = caller.get_top_address_tableid();
 
-        // 2.4 loop to calc the same table id contract address
-        let contract_address = loop {
+        // 2.4 loop to calc the same table id contract address, find the salt
+        let expected_contract_address = loop {
             let contract_address = executor.create_address(evm::CreateScheme::Create2 {
                 caller: caller.raw(),
                 code_hash,
@@ -129,7 +131,7 @@ where
             if Address::build_from_hash160(contract_address).get_top_address_tableid() == caller_table_id {
                 utils::log(
                     format!(
-                        "generate contract_address at nonce:{}, address:{}",
+                        "generate contract_address with nonce:{}, address:{:?}",
                         nonce, contract_address
                     )
                     .as_str(),
@@ -147,13 +149,20 @@ where
         };
 
         // 3. execute tx
-        let (exit_reason, return_value) =
-            executor.transact_create(caller.raw(), value.into_wei_raw(), input, gas_limit, Vec::new());
+        let (exit_reason, return_value) = executor.transact_create2(
+            caller.raw(),
+            value.into_wei_raw(),
+            input,
+            salt_value,
+            gas_limit,
+            Vec::new(),
+        );
+
         let result = if exit_reason.is_succeed() {
-            // todo test this branch if is same with `return_value`
-            contract_address.0.to_vec()
+            utils::log(format!("deploy_code success: {:?}", expected_contract_address).as_str());
+            expected_contract_address.0.to_vec()
         } else {
-            utils::log(format!("deploy_code failed: {:?}", exit_reason).as_str());
+            utils::log(format!("deploy_code failed: {:?} : {:?}", exit_reason, return_value).as_str());
             return_value
         };
 

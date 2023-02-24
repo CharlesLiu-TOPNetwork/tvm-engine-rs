@@ -17,3 +17,6 @@ tvm-engine-types = { workspace = true }
 tvm-engine-runtime = { workspace = true }
 evm = { workspace = true }
 protobuf = { workspace = true }
+
+[features]
+build_as_xtop_lib = []
