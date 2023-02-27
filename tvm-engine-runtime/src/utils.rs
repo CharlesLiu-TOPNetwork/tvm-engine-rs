@@ -19,12 +19,15 @@ pub fn panic_utf8(bytes: &[u8]) -> ! {
 }
 
 pub fn log_utf8(bytes: &[u8]) {
-    println!("log: {:?}", bytes);
+    // println!("log: {:?}", bytes);
     unsafe {
         crate::runtime::tvm_log_utf8(bytes.len() as u64, bytes.as_ptr() as u64);
     }
 }
 
-pub fn log(data: &str) {
-    log_utf8(data.as_bytes());
+#[macro_export]
+macro_rules! log_format {
+    ($($args:tt)*) => {
+        tvm_engine_runtime::utils::log_utf8(format!("{}", format_args!($($args)*)).as_str().as_bytes())
+    };
 }

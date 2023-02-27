@@ -13,6 +13,7 @@ pub(crate) struct CallArgs {
 }
 
 /// Result that return back.
+#[derive(Debug)]
 pub(crate) struct ReturnResult {
     status: u32,
     status_data: Vec<u8>,
@@ -22,6 +23,7 @@ pub(crate) struct ReturnResult {
 
 /// Execute result if no eninge error occur.
 /// Returned by evm, than convert into return_result.status.
+#[derive(Debug)]
 pub(crate) enum TransactionStatus {
     Succeed(Vec<u8>),
     Revert(Vec<u8>),

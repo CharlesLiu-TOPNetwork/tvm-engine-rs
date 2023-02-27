@@ -2,7 +2,7 @@ use std::cell::RefCell;
 
 use evm::backend::{Apply, ApplyBackend, Backend};
 use tvm_engine_precompiles::Precompiles;
-use tvm_engine_runtime::{env::Env, io::IO, methods::*, utils, DupCache, PairDupCache};
+use tvm_engine_runtime::{env::Env, io::IO, log_format, methods::*, utils, DupCache, PairDupCache};
 use tvm_engine_types::{uTop, Address, H256, U256};
 
 use crate::{CallArgs, EngineError, EngineErrorEnum, ReturnResult, TransactionStatus};
@@ -112,7 +112,7 @@ where
 
         // 2.2 nonce hash as salt begin value
         let nonce = self.basic(caller.raw()).nonce;
-        utils::log(format!("get address {:?} 's nonce: {:?}", caller, nonce).as_str());
+        log_format!("get address {:?} 's nonce: {:?}", caller, nonce);
         let mut temp_bytes = Vec::new();
         temp_bytes.resize(32, 0u8);
         nonce.to_big_endian(&mut temp_bytes);
@@ -129,12 +129,10 @@ where
                 salt: salt_value,
             });
             if Address::build_from_hash160(contract_address).get_top_address_tableid() == caller_table_id {
-                utils::log(
-                    format!(
-                        "generate contract_address with nonce:{}, address:{:?}",
-                        nonce, contract_address
-                    )
-                    .as_str(),
+                log_format!(
+                    "generate contract_address with nonce:{}, address:{:?}",
+                    nonce,
+                    contract_address
                 );
                 break contract_address;
             }
@@ -159,10 +157,10 @@ where
         );
 
         let result = if exit_reason.is_succeed() {
-            utils::log(format!("deploy_code success: {:?}", expected_contract_address).as_str());
+            log_format!("deploy_code success: {:?}", expected_contract_address);
             expected_contract_address.0.to_vec()
         } else {
-            utils::log(format!("deploy_code failed: {:?} : {:?}", exit_reason, return_value).as_str());
+            log_format!("deploy_code failed: {:?} : {:?}", exit_reason, return_value);
             return_value
         };
 
@@ -175,6 +173,8 @@ where
                 return Err(engine_error.with_gas_used(used_gas));
             }
         };
+
+        log_format!("deploy_code result status: {:?}", status);
 
         // 5. apply changes && return result
         let (values, logs) = executor.into_state().deconstruct();
@@ -352,7 +352,7 @@ where
                     );
                     if let Some(code) = code {
                         set_code(&mut self.io, &address, &code);
-                        utils::log(format!("code write at {:?}, size:{}", address, code.len()).as_str());
+                        log_format!("code write at {:?}, size:{}", address, code.len());
                     }
                     if reset_storage {
                         remove_all_storage(&mut self.io, &address);
@@ -361,7 +361,7 @@ where
                         if value == H256::default() {
                             remove_storage(&mut self.io, &address, &index);
                         } else {
-                            // utils::log(format!("set_storage {:?}, {:?}",hex::encode(index.as_bytes()),hex::encode(value.bytes())).as_str());
+                            // log_format!("set_storage {:?}, {:?}",hex::encode(index.as_bytes()),hex::encode(value.bytes()));
                             set_storage(&mut self.io, &address, &index, &value);
                         }
                     }
