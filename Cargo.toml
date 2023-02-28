@@ -7,7 +7,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0-alpha"
+version = "0.1.0-beta"
 edition = "2021"
 authors = ["Charles.liu"]
 description = "Virtual Machine Engine for TOP-Chain"
@@ -16,9 +16,9 @@ rust-version = "1.66"
 [workspace.dependencies]
 primitive-types = { version = "0.12.1" }
 hex = { version = "0.4.3" }
-tvm-engine-precompiles = { version = "0.1.0-alpha", path = "./tvm-engine-precompiles" }
-tvm-engine-types = { version = "0.1.0-alpha", path = "./tvm-engine-types" }
-tvm-engine-runtime = { version = "0.1.0-alpha", path = "./tvm-engine-runtime" }
+tvm-engine-precompiles = { version = "0.1.0-beta", path = "./tvm-engine-precompiles" }
+tvm-engine-types = { version = "0.1.0-beta", path = "./tvm-engine-types" }
+tvm-engine-runtime = { version = "0.1.0-beta", path = "./tvm-engine-runtime" }
 evm = { version = "0.37.0" }
 sha2 = { version = "0.10.6", default-features = false }
 sha3 = { version = "0.10.6", default-features = false }
